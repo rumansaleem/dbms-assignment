@@ -9,3 +9,8 @@ def some(iterable, callback):
         if(callback(item)):
             return True 
     return False
+
+def first(iterable, callback):
+    for item in iterable:
+        if(callback(item)):
+            return item
