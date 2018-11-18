@@ -21,3 +21,7 @@ print("Relation is 1NF?", 'Yes' if dbms.isFirstNF(relation) else 'No')
 print("Relation is 2NF?", 'Yes' if dbms.isSecondNF(relation) else 'No')
 print("Relation is 3NF?", 'Yes' if dbms.isThirdNF(relation) else 'No')
 print("Relation is BCNF?", 'Yes' if dbms.isBCNF(relation) else 'No')
+
+print("\nMinimal Cover :")
+minimalCover =  dbms.minimalCover(attributes, fdString)
+print(minimalCover.toString())

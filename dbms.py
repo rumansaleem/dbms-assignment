@@ -1,10 +1,15 @@
 from itertools import combinations
 from helpers import every
 from helpers import some
+import copy
+
 class FunctionalDependencySet:
     
-    def __init__(self, iterable = []):
-        self.__items__ = set( (lhs,rhs) for lhs, rhs in map(lambda x: x.split('->'), iterable) )
+    def __init__(self, iterable = [], items = None):
+        if iterable:
+            self.__items__ = set( (lhs,rhs) for lhs, rhs in map(lambda x: x.split('->'), iterable) )
+        else:
+            self.__items__ = items
 
     def __len__(self):
         return len(self.__items__)
@@ -15,11 +20,18 @@ class FunctionalDependencySet:
     def __next__(self):
         return 
 
+    def duplicate(self):
+        temp = FunctionalDependencySet([],copy.deepcopy(self.__items__))
+        return temp
+
     def add(self, lhs, rhs):
         self.__items__.add((lhs,rhs))
 
     def remove(self, lhs, rhs):
         self.__items__.remove((lhs, rhs))
+
+    def replaceItems(self, temp_fds):
+        self.__items__ = temp_fds
 
     def leftSideSet(self):
         return set(lhs for lhs, rhs in self.__items__)
@@ -109,3 +121,38 @@ def isBCNF(relation):
         return False
 
     return every(relation.fdSet.leftSideSet(), lambda lhs: relation.validKey(lhs) )
+
+def minimalCover(attributes, fdString):
+    fd_set = FunctionalDependencySet([ fd for fd in fdString.split(',')])
+    
+    #Split the dependencies
+    temp_fds = set((lhs,ele) for lhs, rhs in fd_set for ele in rhs)
+    fd_set.replaceItems(temp_fds) 
+    
+    #Reduce Right side
+    temp_fds = fd_set.duplicate()
+    for lhs, rhs in fd_set:
+        temp_fds.remove(lhs,rhs)
+        if set(rhs).issubset(temp_fds.closureSet(lhs)):
+            continue
+        else:
+            temp_fds.add(lhs,rhs)
+    #fd_set.replaceItems(temp_fds)
+    fd_set = temp_fds.duplicate()
+    
+    #Reduce Left side
+    temp_fds = fd_set.duplicate()
+    for lhs, rhs in fd_set:
+        if len(lhs) < 2: continue
+        temp_fds.remove(lhs,rhs)
+        temp_lhs = lhs
+        lhs_closure = fd_set.closureSet(lhs)
+        for ele in temp_lhs:
+            if lhs_closure == temp_fds.closureSet(ele):
+                lhs = ele
+                break
+        temp_fds.add(lhs,rhs)
+    fd_set = temp_fds.duplicate()
+
+    return fd_set
+
