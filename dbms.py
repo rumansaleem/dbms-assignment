@@ -136,7 +136,7 @@ def minimalCover(fdSet):
     for lhs, rhs in compositeLhsFds:
         lhsClosure = fdSet.closureSet(lhs)
         fdSet.remove(lhs,rhs)
-        lhs = first(lhs, lambda attr: lhsClosure == fdSet.closureSet(attr))
-        fdSet.add(lhs,rhs)
+        reducedlhs = first(lhs, lambda attr: lhsClosure == fdSet.closureSet(attr))
+        fdSet.add(reducedlhs if reducedlhs else lhs,rhs)
 
     return fdSet

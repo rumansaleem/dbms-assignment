@@ -14,3 +14,4 @@ def first(iterable, callback):
     for item in iterable:
         if(callback(item)):
             return item
+    return None
